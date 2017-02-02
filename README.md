@@ -4,8 +4,9 @@ V 0.01 - 2/2/2017
 This Playbook will fully automate the setup of a pulp server that syncs al necessary RPM and Docker Repos used by Openshift 3.4. 
 
 ## Idea
-I want to be able to setup/destroy multi-node Openshift Test/demo environments (local on one Notebook using any given Hypervisor) without being online. All RPMs and Docker Packets should be served by this Pulp Server.
-Steps:
+I want to be able to setup/destroy multi-node Openshift Test/demo environments (local on one Notebook using any given Hypervisor) without being online. All RPMs and Docker Packets should be served by a local Pulp Server VM.
+
+### Steps:
 - create Pulp Server and sync Repos using this Playbook
 - create a bunch of VMs for the OSCP environment (using whatever orchestration)
 - use the existing OSCP-Ansible Installer to roll out a multi node Openshift environment and pull all needed packets from the pulp server
