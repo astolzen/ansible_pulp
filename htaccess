@@ -1,0 +1,6 @@
+AuthType Basic
+AuthUserFile /var/lib/pulp/.htpasswd
+AuthName "admin"
+order deny,allow
+allow from all
+require valid-user

@@ -1,0 +1,118 @@
+---
+- hosts: pulp
+  gather_facts: no
+
+  vars:
+    pulprepo: "https://repos.fedorapeople.org/repos/pulp/pulp/rhel-pulp.repo"
+
+  vars_prompt:
+  - name: "rhn_user"
+    prompt: "RHN Username"
+    private: no
+
+  - name: "rhn_pw"
+    prompt: "RHN Password"
+    private: yes
+
+  tasks:
+  - name: Open Firewall Ports
+    firewalld: port={{ item }} permanent=true state=enabled
+    with_items:
+    - "80/tcp"
+    - "443/tcp"
+    - "5671/tcp"
+    - "5672/tcp"
+    notify: restart firewalld
+
+  - name: Set Hostname
+    hostname: name={{ hostname }}
+
+  - name: Subscribe System
+    redhat_subscription: state=present username={{ rhn_user }} password={{ rhn_pw }} autosubscribe=true
+    when: not is_already_subscribed
+
+  - name: Disable Default repos
+    shell: "subscription-manager repos --disable=*"
+    when: not is_already_subscribed
+
+  - name: Subscribe Repos
+    shell: "subscription-manager repos --enable={{ item }}"
+    with_items:
+    - rhel-7-server-rpms
+    - rhel-7-server-extras-rpms
+    - rhel-7-server-supplementary-rpms
+    - rhel-7-server-optional-rpms
+    - rhel-server-rhscl-7-rpms
+    - rhel-7-server-rh-common-rpms
+    - rhel-7-server-ose-3.4-rpms
+    when: not is_already_subscribed
+
+  - name: Add Community Repo Pulp
+    get_url: url={{ pulprepo }} dest=/etc/yum.repos.d/pulp.repo
+
+  - name: Add Epel
+    yum: name=https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm state=latest
+    when: not is_already_subscribed
+
+  - name: Update all
+    yum: name=* state=latest
+
+  - name: Install Packages
+    yum: name={{ item }} state=latest
+    with_items:
+    - mongodb-server
+    - rsync
+    - qpid-cpp-server
+    - qpid-cpp-server-linearstore
+    - pulp-server
+    - python-gofer-qpid
+    - python-qpid
+    - python-passlib
+    - qpid-tools
+    - pulp-rpm-plugins
+    - pulp-puppet-plugins
+    - pulp-docker-plugins
+    - pulp-admin-client
+    - pulp-rpm-admin-extensions
+    - pulp-puppet-admin-extensions
+    - pulp-docker-admin-extensions
+
+  - name: Enable Services
+    service: name={{ item }} enabled=true
+    with_items:
+    - mongod
+    - qpidd
+    - httpd
+    - pulp_celerybeat
+    - pulp_resource_manager
+
+  - name: Start Mongo for initial DB creation
+    service: name=mongod state=restarted
+
+  - name: Create Pulp DB
+    shell: sudo -u apache pulp-manage-db
+
+  - name: Update Apache Config for Pulp
+    copy: src=pulp.conf dest=/etc/httpd/conf.d/pulp.conf owner=apache group=apache mode=0644
+
+  - name: Update Access File
+    copy: src=htaccess dest=/var/lib/pulp/.htaccess owner=apache group=apache mode=0644
+
+  - name: Create Admin-Password
+    htpasswd: path=/var/lib/pulp/.htpasswd name=admin password=admin owner=apache group=apache mode=0640
+
+  - name: Set Pulp Admin Config
+    template: src=admin.conf.j2 dest=/etc/pulp/admin/admin.conf owner=root group=root mode=0644
+
+  - name: Restart pulp services
+    service: name={{ item }} state=restarted
+    with_items:
+    - qpidd
+    - httpd
+    - pulp_workers
+    - pulp_celerybeat
+    - pulp_resource_manager
+
+  handlers:
+  - name: restart firewalld
+    service: name=firewalld state=restarted
