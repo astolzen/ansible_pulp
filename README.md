@@ -39,7 +39,7 @@ I want to be able to setup/destroy multi-node Openshift Test/demo environments (
 
 ## Current 
 - Script will subscribe the host, install Pulp, set up Pulp DB, enable all services and do a basic config
-- admin-access will be set to htpasswd-Auth wit user admin:admin
+- admin-access will be set to htpasswd-Auth with user admin:admin
 - pulp-admin will be preconfigured with admin:admin-Access
 
 ## TBD (v 0.02)
@@ -49,5 +49,9 @@ I want to be able to setup/destroy multi-node Openshift Test/demo environments (
 
 ## TBD (future)
 - Modularize Playbook
+- Modularize VARs
+- include user defined RPM/Docker Repos into auto sync setup
+- add lazy sync option
 - Add Option to roll out Pulp-Server on Clouds (Azure, Aws, Google) alternatively to local VNMs
+
 
