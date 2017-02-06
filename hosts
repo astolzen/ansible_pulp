@@ -2,4 +2,4 @@
 ansible_ssh_user=root
 
 [pulp]
-192.168.122.165 hostname="rh7pulp.default.lan" is_already_subscribed=False
+192.168.122.108 hostname="rh7pulp.default.lan" is_already_subscribed=False

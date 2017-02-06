@@ -1,0 +1,35 @@
+---
+- hosts: pulp
+  gather_facts: no
+  vars_files:
+  - repovars.yml
+
+  tasks:
+  - name: get RHN-Key-Info
+    find: paths="/etc/pki/entitlement/"
+    register: output
+
+  - name: Create RPM repos
+    shell: pulp-admin rpm repo create --feed-ca-cert=/etc/rhsm/ca/redhat-uep.pem --feed-key="{{ output.files[0].path }}" --feed-cert="{{ output.files[1].path }}" --repo-id="{{ item.key }}" --feed="{{ item.value.feed }}"
+    with_dict: "{{ rpm }}"
+
+  - name: Create docker repos
+    shell: pulp-admin docker repo create --repo-id="{{ item.key }}" --description="{{ item.key }}" --display-name="{{ item.key }}" --upstream-name="{{ item.value.upstream }}" --feed="{{ item.value.feed }}"
+    with_dict: "{{ docker }}"
+
+  - name: create RPM Schedule
+    shell: pulp-admin rpm repo sync schedules create --schedule 2017-02-01T00:00:00Z/P1DT --repo-id="{{ item.key }}"
+    with_dict: "{{ rpm }}"
+
+#    Pulp does currently not support a docker sync schedule
+#  - name: create docker Schedule
+#    shell: pulp-admin docker repo sync schedules create --schedule 2017-02-01T01:00:00Z/P1DT --repo-id="{{ item.key }}"
+#    with_dict: "{{ docker }}"
+
+  - name: Start initial sync rpm
+    shell: pulp-admin rpm repo sync run --bg --repo-id="{{ item.key }}"
+    with_dict: "{{ rpm }}"
+
+  - name: Start initial sync docker
+    shell: pulp-admin docker repo sync run --bg --repo-id="{{ item.key }}"
+    with_dict: "{{ docker }}"

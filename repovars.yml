@@ -1,0 +1,12 @@
+rpm:
+  rhel-7-server-rpms:
+    feed: https://cdn.redhat.com/content/dist/rhel/server/7/7Server/x86_64/os
+  rhel-7-server-extras-rpms:
+    feed: https://cdn.redhat.com/content/dist/rhel/server/7/7Server/x86_64/extras/os
+  rhel-7-server-ose-3.4-rpms:
+    feed:  https://cdn.redhat.com/content/dist/rhel/server/7/7Server/x86_64/ose/3.4/os
+
+docker:
+  rhel7-docker:
+    feed: https://registry.access.redhat.com/v2/
+    upstream: rhel7
