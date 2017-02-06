@@ -1,5 +1,5 @@
 # Pulp Automate Install on RHEL 7
-V 0.01 - 2/2/2017
+V 0.02 - 6/2/2017
 
 This Playbook will fully automate the setup of a pulp server that syncs al necessary RPM and Docker Repos used by Openshift 3.4. 
 
@@ -35,17 +35,16 @@ I want to be able to setup/destroy multi-node Openshift Test/demo environments (
 
 ### 2. Config
 - Andjust hosts file: Insert IP of your Pulp Server, add the hostename in the _hostname=_ variable. Set _is_already_subscribed_ to True, **only** whent the system is already subscribed and has all required repos enabled
-- run ansible playbook
+- run ansible playbook "pulpinstall" to set up pulp server
+- customize repovars.yml and add repos you like to sync
+- run ansible playbook "pulprepos.yml" to create repos as defined in repovars plus schedules for RPM repos and do an intial sync
+
 
 ## Current 
 - Script will subscribe the host, install Pulp, set up Pulp DB, enable all services and do a basic config
 - admin-access will be set to htpasswd-Auth with user admin:admin
 - pulp-admin will be preconfigured with admin:admin-Access
-
-## TBD (v 0.02)
-- Auto create RPM/Docker Repos on Pulp Server
-- Auto Setup Sync Schedule for all Repos
-- Do an initial Sync
+- pulprepos PB will create repos and sync
 
 ## TBD (future)
 - Modularize Playbook
