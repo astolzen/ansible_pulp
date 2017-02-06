@@ -1,0 +1,15 @@
+---
+- hosts: pulp
+  gather_facts: no
+
+  tasks:
+  - name: get info
+    find: paths="/etc/pki/entitlement/" 
+    register: output
+
+  - name: Print 1
+    debug: msg="{{ output.files[1].path }}"
+
+
+  - name: Print 2
+    debug: msg="{{ output.files[0].path }}"

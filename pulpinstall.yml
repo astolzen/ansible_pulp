@@ -83,6 +83,7 @@
     - mongod
     - qpidd
     - httpd
+    - pulp_workers
     - pulp_celerybeat
     - pulp_resource_manager
 
